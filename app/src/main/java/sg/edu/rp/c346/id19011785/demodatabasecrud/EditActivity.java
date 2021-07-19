@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 public class EditActivity extends AppCompatActivity {
 
-    TextView tvID;
+    TextView tvID, tvContent;
     EditText etContent;
     Button btnUpdate, btnDel;
     Note data;
@@ -21,7 +21,8 @@ public class EditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
 
-        tvID = findViewById(R.id.tvContent);
+        tvID = findViewById(R.id.tvID);
+        tvContent = findViewById(R.id.tvContent);
         etContent = findViewById(R.id.etContent);
         btnUpdate = findViewById(R.id.btnUpdate);
         btnDel = findViewById(R.id.btnDelete);
@@ -39,6 +40,9 @@ public class EditActivity extends AppCompatActivity {
                 data.setNoteContent(etContent.getText().toString());
                 dbh.updateNote(data);
                 dbh.close();
+
+                finish();
+
             }
         });
 

@@ -5,14 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         btnRetrieve = findViewById(R.id.btnRetrieve);
         tvDBContent = findViewById(R.id.tvContent);
         etContent = findViewById(R.id.etContent);
+        lv = findViewById(R.id.lv);
 
         al = new ArrayList<Note>();
         aa = new ArrayAdapter<Note>(this, android.R.layout.simple_list_item_1, al);
@@ -61,7 +61,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 DBHelper dbh = new DBHelper(MainActivity.this);
                 al.clear();
-                al.addAll(dbh.getAllNotes());
+                //al.addAll(dbh.getAllNotes());
+
+                // Section F: adding the filter
+                String filterText = etContent.getText().toString().trim();
+                if (filterText.length() == 0) {
+                    al.addAll(dbh.getAllNotes());
+                }
+                else {
+                    al.addAll(dbh.getAllNotes(filterText));
+                }
                 aa.notifyDataSetChanged();
             }
         });
@@ -77,5 +86,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Note target = al.get(position); // Note data (from worksheet)
+                Intent i = new Intent(MainActivity.this, EditActivity.class);
+                i.putExtra("data", target);
+                startActivity(i);
+            }
+        });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        btnRetrieve.performClick();
     }
 }

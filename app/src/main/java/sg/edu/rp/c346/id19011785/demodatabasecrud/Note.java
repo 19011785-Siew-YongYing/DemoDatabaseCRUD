@@ -28,6 +28,6 @@ public class Note implements Serializable {
 
     @Override
     public String toString() {
-        return "ID:" + id + ", " + noteContent;
+        return "ID: " + id + ", " + noteContent;
     }
 }

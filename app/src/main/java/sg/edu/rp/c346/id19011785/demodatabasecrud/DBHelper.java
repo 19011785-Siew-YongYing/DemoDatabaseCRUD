@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "simplenotes.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2; // originally 1 ; Section G: Upgrading of Table
     private static final String TABLE_NOTE = "note";
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_NOTE_CONTENT = "note_content";
@@ -37,15 +37,16 @@ public class DBHelper extends SQLiteOpenHelper {
             values.put(COLUMN_NOTE_CONTENT, "Data Number " + i );
             db.insert(TABLE_NOTE, null, values);
         }
-
         Log.i("info", "Dummy records inserted");
-
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTE);
-        onCreate(db);
+        //db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTE);
+        //onCreate(db);
+
+        // Section G: Upgrading of Table
+        db.execSQL("ALTER TABLE " + TABLE_NOTE + " ADD COLUMN module_name TEXT ");
     }
 
     public long insertNote(String noteContent){
@@ -57,16 +58,16 @@ public class DBHelper extends SQLiteOpenHelper {
             Log.d("DBHelper", "Insert Failed");
         }
         else{
-            Log.d("SQL Insert", "ID:" + result); // id  returned, shouldn't be -1
+            Log.d("SQL Insert", "ID: " + result); // id  returned, shouldn't be -1
         }
         db.close();
         return result;
     }
 
-    public ArrayList<Note> getAllNotes() {
+    public ArrayList<Note> getAllNotes() { // Normal
         ArrayList<Note> notes = new ArrayList<Note>();
 
-        String selectQuery = "SELECT " + COLUMN_ID + ", "
+        String selectQuery = "SELECT " + COLUMN_ID + " , "
                 + COLUMN_NOTE_CONTENT + " FROM " + TABLE_NOTE;
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -84,6 +85,44 @@ public class DBHelper extends SQLiteOpenHelper {
         return notes;
     }
 
+    public ArrayList<Note> getAllNotes(String keyword) { // Section F: adding the filter
+        ArrayList<Note> notes = new ArrayList<Note>();
+
+        String selectQuery = "SELECT " + COLUMN_ID + " , "
+                + COLUMN_NOTE_CONTENT + " FROM " + TABLE_NOTE;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Section F: adding the filter
+        String[] columns = {COLUMN_ID, COLUMN_NOTE_CONTENT};
+        String condition = COLUMN_NOTE_CONTENT + " LIKE ?";
+        String[] args = {"%" + keyword + "%"};
+
+        Cursor cursor = db.query(TABLE_NOTE, columns, condition, args, null, null, null, null);
+
+        if (cursor.moveToFirst()){
+            do {
+               int id = cursor.getInt(0);
+               String noteContent = cursor.getString(1);
+               Note note = new Note(id, noteContent);
+               notes.add(note);
+            } while (cursor.moveToNext());
+        }
+
+        /*Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(0);
+                String noteContent = cursor.getString(1);
+                Note note = new Note(id, noteContent);
+                notes.add(note);
+            } while (cursor.moveToNext());
+        }*/
+        cursor.close();
+        db.close();
+        return notes;
+    }
+
     public int updateNote(Note data) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -93,9 +132,6 @@ public class DBHelper extends SQLiteOpenHelper {
         int result = db.update(TABLE_NOTE, values, condition, args);
         if (result < 1) {
             Log.d("DBHelper", "Update Failed");
-        }
-        else{
-            Log.d("DBHelper", "Update Successful!");
         }
         db.close();
         return result;
