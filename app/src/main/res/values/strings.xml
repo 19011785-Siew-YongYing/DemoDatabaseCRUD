@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Demo DatabaseCRUD</string>
+    <string name="editC" />
+    <string name="textviewC">Enter Data to be inserted here: </string>
+    <string name="btnAdd">INSERT</string>
+    <string name="btnEdit">EDIT</string>
+    <string name="btnRetrieve">RETRIEVE</string>
+    <string name="btnUpdate">UPDATE</string>
+    <string name="btnDel">DELETE</string>
+    <string name="textviewID">ID:</string>
+    <string name="textVC">Content:</string>
+</resources>
